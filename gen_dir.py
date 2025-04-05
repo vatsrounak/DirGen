@@ -1,6 +1,8 @@
 import os
-import sys
+import argparse
 import re
+import logging
+from logging_setup import setup_logging
 
 def parse_structure(input_lines, target_path):
     if not input_lines:
@@ -11,6 +13,7 @@ def parse_structure(input_lines, target_path):
     root_name = root_line.split('#')[0].strip().rstrip('/')
     root_path = os.path.join(target_path, root_name)
     os.makedirs(root_path, exist_ok=True)
+    logging.info("Created root directory: %s", root_path)
 
     stack = [root_path]
 
@@ -22,6 +25,7 @@ def parse_structure(input_lines, target_path):
         # Split line into indentation and entry parts
         match = re.match(r'^(.*?)(├── |└── )(.*)$', line)
         if not match:
+            logging.warning("Skipping line due to unexpected format: %s", line)
             continue  # Skip lines that don't match the expected pattern
 
         indentation_part = match.group(1)
@@ -41,7 +45,8 @@ def parse_structure(input_lines, target_path):
 
         # Adjust the stack to the current depth
         while depth < len(stack):
-            stack.pop()
+            popped = stack.pop()
+            logging.debug("Popped from stack: %s", popped)
 
         parent_dir = stack[-1]
         full_path = os.path.join(parent_dir, entry_name)
@@ -49,29 +54,40 @@ def parse_structure(input_lines, target_path):
         if is_directory:
             os.makedirs(full_path, exist_ok=True)
             stack.append(full_path)
+            logging.info("Created directory: %s", full_path)
         else:
             # Ensure parent directory exists
             os.makedirs(os.path.dirname(full_path), exist_ok=True)
             # Create an empty file
             open(full_path, 'a').close()
+            logging.info("Created file: %s", full_path)
+        logging.debug("Current stack: %s", stack)
+    logging.debug("Final stack: %s", stack)
 
 if __name__ == '__main__':
-    print("Arguments received:", sys.argv)  # Debug print
-    if len(sys.argv) != 3:
-        print("Usage: python gen_dir.py <structure_file> <target_path>")
-        sys.exit(1)
 
-    structure_file = sys.argv[1]
-    target_path = sys.argv[2]
-    print("Structure file:", structure_file)  # Debug print
-    print("Target path:", target_path)        # Debug print
+    # Initialize logging configuration
+    setup_logging()
+    
+    #Argument parser setup
+    parser = argparse.ArgumentParser(description='Generate directory structure from a text file.')
+    parser.add_argument('structure_file', type=str, help='Path to the structure file.')
+    parser.add_argument('target_path', type=str, help='Path to create the directory structure.')
+    args = parser.parse_args()
+    
+    structure_file  = args.structure_file
+    target_path = args.target_path
+
+
+    logging.info("Structure file:", structure_file)  # Debug print
+    logging.info("Target path:", target_path)        # Debug print
 
     try:
         with open(structure_file, 'r') as f:
             input_lines = f.readlines()
         parse_structure(input_lines, target_path)
-        print(f"Directory structure created successfully in {target_path}")
+        logging.info("Directory structure created successfully in %s", target_path)
     except FileNotFoundError:
-        print(f"Error: Structure file '{structure_file}' not found.")
+        logging.error("Error: Structure file '%s' not found.", structure_file)  
     except Exception as e:
-        print(f"Error: {e}")
+        logging.error("Error: %s", e)  

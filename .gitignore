@@ -9,6 +9,9 @@ __pycache__/
 # testing folder
 /testing_folder
 
+# logging files
+*.log
+
 # Distribution / packaging
 .Python
 build/
