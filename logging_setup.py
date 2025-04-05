@@ -22,7 +22,7 @@ def setup_logging():
     logger.addHandler(console_handler)
     
     # Setup a rotating file handler to log DEBUG level and above messages
-    file_handler = RotatingFileHandler('app.log, maxBytes=10*1024*1024, backupCount=5)') # this means the log file will be rotated when it reaches 10 MB, keeping 5 backups
+    file_handler = RotatingFileHandler('app.log', maxBytes=10*1024*1024, backupCount=5)# this means the log file will be rotated when it reaches 10 MB, keeping 5 backups
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
