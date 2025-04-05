@@ -1,5 +1,5 @@
 import os
-import sys
+import argparse
 import re
 
 def parse_structure(input_lines, target_path):
@@ -56,13 +56,16 @@ def parse_structure(input_lines, target_path):
             open(full_path, 'a').close()
 
 if __name__ == '__main__':
-    print("Arguments received:", sys.argv)  # Debug print
-    if len(sys.argv) != 3:
-        print("Usage: python gen_dir.py <structure_file> <target_path>")
-        sys.exit(1)
 
-    structure_file = sys.argv[1]
-    target_path = sys.argv[2]
+    parser = argparse.ArgumentParser(description='Generate directory structure from a text file.')
+    parser.add_argument('structure_file', type=str, help='Path to the structure file.')
+    parser.add_argument('target_path', type=str, help='Path to create the directory structure.')
+    args = parser.parse_args()
+    
+    structure_file  = args.structure_file
+    target_path = args.target_path
+
+
     print("Structure file:", structure_file)  # Debug print
     print("Target path:", target_path)        # Debug print
 
