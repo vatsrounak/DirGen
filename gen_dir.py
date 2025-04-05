@@ -2,6 +2,7 @@ import os
 import argparse
 import re
 import logging
+from logging_setup import setup_logging
 
 def parse_structure(input_lines, target_path):
     if not input_lines:
@@ -65,8 +66,8 @@ def parse_structure(input_lines, target_path):
 
 if __name__ == '__main__':
 
-    # Setup logging configuration
-    logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+    # Initialize logging configuration
+    setup_logging()
     
     #Argument parser setup
     parser = argparse.ArgumentParser(description='Generate directory structure from a text file.')
